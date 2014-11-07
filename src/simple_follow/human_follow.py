@@ -38,10 +38,10 @@ class SimpleFollow(object):
             with wander_search:
                 smach.Concurrence.add('Wandering', Wander())
                 smach.Concurrence.add('Searching', Search())
-                smach.StateMachine.add('wander_search', wander_search,
-                                       transitions={
-                                           'succeeded': 'wander_search',
-                                           'aborted': 'follow'})
+            smach.StateMachine.add('wander_search', wander_search,
+                                   transitions={
+                                       'succeeded': 'wander_search',
+                                       'aborted': 'follow'})
 
             follow = smach.Concurrence(
                 outcomes=['succeeded', 'aborted', 'preempted'],
@@ -52,10 +52,9 @@ class SimpleFollow(object):
             with follow:
                 smach.Concurrence.add('Follow', Follow())
                 smach.Concurrence.add('MoveSearch', MoveSearch())
-                smach.StateMachine.add(
-                    'follow', follow,
-                    transitions={'succeeded': 'follow',
-                                 'aborted': 'local_search'})
+            smach.StateMachine.add('follow', follow,
+                                   transitions={'succeeded': 'follow',
+                                                'aborted': 'local_search'})
 
             local_search = smach.Concurrence(
                 outcomes=['succeeded', 'aborted', 'preempted'],
@@ -66,10 +65,9 @@ class SimpleFollow(object):
             with local_search:
                 smach.Concurrence.add('LocalSearch', LocalSearch())
                 smach.Concurrence.add('MoveSearch', MoveSearch())
-                smach.StateMachine.add(
-                    'local_search', local_search,
-                    transitions={'succeeded': 'follow',
-                                 'aborted': 'start'})
+            smach.StateMachine.add('local_search', local_search,
+                                   transitions={'succeeded': 'follow',
+                                                'aborted': 'start'})
 
     def child_termination_cb(self, msg):
         if msg['Searching'] == 'succeeded':

@@ -9,7 +9,7 @@ from geometry_msgs.msg import Polygon, Pose, Point32
 from nav_goals_msgs.srv import NavGoals
 from strands_navigation_msgs.msg import MonitoredNavigationAction
 from strands_navigation_msgs.msg import MonitoredNavigationGoal
-from bayes_people_tracker_msgs.msg import PeopleTracker
+from bayes_people_tracker.msg import PeopleTracker
 
 
 def point_inside_poly(point, poly):
@@ -48,7 +48,7 @@ class Wander(smach.State):
             rospy.logerr("Service call failed: %s" % e)
 
         rospy.loginfo('Receiving navigation goals...')
-        self.mode = rospy.get_param('~wandering_mode', 'normal')
+        self.mode = rospy.get_param('~wandering_mode', 'wait')
 
     def _load_params(self):
         config = yaml.load(open(rospy.get_param("~config_file")))
@@ -78,7 +78,8 @@ class Wander(smach.State):
             self.service_preempt()
             rospy.loginfo('Reseting preempt...')
 
-        rospy.loginfo('Enter wandering mode... ' + self.preempt_requested())
+        rospy.loginfo('Enter wandering mode... ' +
+                      str(self.preempt_requested()))
 
         while not self.preempt_requested():
             nav_goals = self.nav_goals(1, 0.7, self.polygon)
@@ -94,7 +95,7 @@ class Wander(smach.State):
             if self.mode == 'normal':
                 monav_goal.target_pose.pose = nav_goals.goals.poses[0]
                 client.send_goal(monav_goal)
-            elif point_inside_poly(self.wait_point, self.points):
+            elif point_inside_poly(self.wait_point.position, self.points):
                 monav_goal.target_pose.pose = self.wait_point
                 client.send_goal(monav_goal)
 

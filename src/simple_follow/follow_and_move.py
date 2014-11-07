@@ -5,14 +5,13 @@ import smach
 import yaml
 import actionlib
 from math import hypot, atan
-from geometry_msgs.msg import Pose
-from bayes_people_tracker_msgs.msg import PeopleTracker
+from geometry_msgs.msg import Pose, Point32, Point
+from bayes_people_tracker.msg import PeopleTracker
 from simple_follow.wander_search import point_inside_poly
 from strands_navigation_msgs.msg import MonitoredNavigationAction
 from strands_navigation_msgs.msg import MonitoredNavigationGoal
 from scitos_ptu.msg import PtuGotoAction, PtuGotoGoal
-from tf.transformation import euler_from_quaternion
-from geometry_msgs import Point32, Point
+from tf.transformations import euler_from_quaternion
 
 
 class Follow(smach.State):
@@ -53,6 +52,7 @@ class Follow(smach.State):
             self.points.append(Point32(float(point[0]), float(point[1]), 0))
 
     def execute(self, userdata):
+        rospy.sleep(rospy.Duration(0.5))
         if userdata.id_now == -1:
             self.old_angle = 0
             rospy.sleep(rospy.Duration(0.3))
@@ -181,8 +181,10 @@ class MoveSearch(smach.State):
             self.last_post = self.current_pose_tf
             self.current_pose_tf = data.poses[data.uuids.index(self.id_now)]
 
-            if hypot(self.last_move_pose.x - self.current_pose_tf.x,
-                     self.last_move_pose.y - self.current_pose_tf.y) > 0.23:
+            if hypot(self.last_move_pose.position.x -
+                     self.current_pose_tf.position.x,
+                     self.last_move_pose.position.y -
+                     self.current_pose_tf.position.y) > 0.23:
                 self.last_move_pose = self.current_pose_tf
                 self.last_move_time = rospy.get_time()
 
