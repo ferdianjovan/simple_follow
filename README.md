@@ -48,7 +48,7 @@ Parameters you can change are listed below:
 Problems
 ============================
 
-Local Searching state may not work at all.
+Local Searching state does not work properly.
 
 Can not catch up with human's normal pace.
 
